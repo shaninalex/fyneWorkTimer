@@ -64,6 +64,11 @@ func main() {
 
 	content := container.NewVBox(input, widget.NewButton("Save", func() {
 		log.Println("Content was:", input.Text)
+		project := Project{
+			Name: input.Text,
+		}
+		project.create(db)
+
 		input.Text = ""
 	}))
 

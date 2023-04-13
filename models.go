@@ -1,22 +1,44 @@
 package main
 
-import "time"
+import (
+	"database/sql"
+	"log"
+	"time"
+)
 
 type Project struct {
 	Id   int64
 	Name string
 }
 
-func (p *Project) create() {
+func (p *Project) create(db *sql.DB) error {
 
+	res, err := db.Exec(`INSERT INTO projects (name) VALUES (?)`, p.Name)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	id, err := res.LastInsertId()
+	p.Id = id
+	return nil
 }
 
-func (p *Project) delete() {
-
+func (p *Project) delete(db *sql.DB) error {
+	_, err := db.Exec(`DELETE FROM projects WHERE id = ?`, p.Id)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }
 
-func (p *Project) update() {
-
+func (p *Project) update(db *sql.DB) error {
+	_, err := db.Exec(`UPDATE projects SET name = '?' WHERE id = ?`, p.Name, p.Id)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	return nil
 }
 
 // this struct relatest to the Project

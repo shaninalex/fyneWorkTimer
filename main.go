@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"fyne.io/fyne"
 	"fyne.io/fyne/app"
 	"fyne.io/fyne/container"
 	"fyne.io/fyne/widget"
@@ -12,6 +13,9 @@ import (
 )
 
 func main() {
+
+	newMode := false
+	windowSize := fyne.NewSize(500, 300)
 
 	db, err := sql.Open("sqlite3", "timer.db")
 	if err != nil {
@@ -56,8 +60,30 @@ func main() {
 
 	fmt.Println(version)
 
-	myApp := app.New()
-	myWindow := myApp.NewWindow("Entry Widget")
+	projects, err := getAllProjects(db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	title := "FyneWorkTimer"
+
+	if len(projects) == 0 {
+		newMode = true
+		title = "Create Project | FyneWorkTimer"
+		windowSize = fyne.NewSize(300, 100)
+	} else {
+		newMode = false
+	}
+
+	fmt.Println(newMode)
+	// TODO: check if any projects in database
+	// if exists
+	// show projects main window
+	// else show create ProjectWindow
+
+	Application := app.New()
+	mainWindow := Application.NewWindow(title)
+	mainWindow.Resize(windowSize)
 
 	input := widget.NewEntry()
 	input.SetPlaceHolder("Enter text...")
@@ -68,11 +94,10 @@ func main() {
 			Name: input.Text,
 		}
 		project.create(db)
-
 		input.Text = ""
 	}))
 
-	myWindow.SetContent(content)
-	myWindow.ShowAndRun()
+	mainWindow.SetContent(content)
+	mainWindow.ShowAndRun()
 
 }

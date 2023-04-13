@@ -11,6 +11,27 @@ type Project struct {
 	Name string
 }
 
+func getAllProjects(db *sql.DB) ([]Project, error) {
+	rows, err := db.Query(`SELECT * FROM projects`)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var all []Project
+	for rows.Next() {
+		var project Project
+		if err := rows.Scan(&project.Id, &project.Name); err != nil {
+			return nil, err
+		}
+		all = append(all, project)
+	}
+
+	return all, nil
+
+}
+
 func (p *Project) create(db *sql.DB) error {
 
 	res, err := db.Exec(`INSERT INTO projects (name) VALUES (?)`, p.Name)

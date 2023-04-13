@@ -29,14 +29,15 @@ func main() {
 		id INTEGER PRIMARY KEY,
 		name VARCHAR(64),
 		project_id INTEGER NOT NULL,
+		time_estimate INTEGER,
 	    FOREIGN KEY (project_id)
 			REFERENCES projects (id)
 	);
 	CREATE TABLE IF NOT EXISTS timepointes (
 		id INTEGER PRIMARY KEY,
 		task_id INTEGER NOT NULL,
-		start_time DATETIME NOT NULL,
-		end_time DATETIME NOT NULL,
+		start_time INTEGER,
+		end_time INTEGER,
 	    FOREIGN KEY (task_id)
 			REFERENCES task (id)	
 	)
@@ -56,7 +57,7 @@ func main() {
 	fmt.Println(version)
 
 	myApp := app.New()
-	myWindow := myApp.NewWindow("FyneWorkTimer")
+	myWindow := myApp.NewWindow("Entry Widget")
 
 	input := widget.NewEntry()
 	input.SetPlaceHolder("Enter text...")

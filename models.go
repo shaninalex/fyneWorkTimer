@@ -21,8 +21,10 @@ func (p *Project) update() {
 
 // this struct relatest to the Project
 type Task struct {
-	Id   int64
-	Name string
+	Id           int64
+	Name         string
+	ProjectId    int64
+	TimeEstimate int64
 }
 
 func (p *Task) create() {

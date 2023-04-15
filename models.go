@@ -13,7 +13,7 @@ func InitDatabase(db_path string) (*sql.DB, error) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer db.Close()
+	// defer db.Close()
 
 	// define schema
 	scheme := `
@@ -41,7 +41,7 @@ func InitDatabase(db_path string) (*sql.DB, error) {
 	_, err = db.Exec(scheme)
 	if err != nil {
 		log.Fatal(err)
-		return nil, err
+		// return nil, err
 	}
 
 	return db, nil
@@ -54,8 +54,10 @@ type Project struct {
 }
 
 func GetAllProjects(db *sql.DB) ([]Project, error) {
+
 	rows, err := db.Query(`SELECT * FROM projects`)
 	if err != nil {
+		log.Printf("db query failed %s", err.Error())
 		log.Fatal(err)
 		return nil, err
 	}

@@ -1,10 +1,52 @@
-package models
+package main
 
 import (
 	"database/sql"
 	"log"
 	"time"
+
+	_ "github.com/mattn/go-sqlite3"
 )
+
+func InitDatabase(db_path string) (*sql.DB, error) {
+	db, err := sql.Open("sqlite3", db_path)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	// define schema
+	scheme := `
+	CREATE TABLE IF NOT EXISTS projects (
+		id INTEGER PRIMARY KEY,
+		name VARCHAR(64) NOT NULL
+	);
+	CREATE TABLE IF NOT EXISTS tasks (
+		id INTEGER PRIMARY KEY,
+		name VARCHAR(64),
+		project_id INTEGER NOT NULL,
+		time_estimate INTEGER,
+	    FOREIGN KEY (project_id)
+			REFERENCES projects (id)
+	);
+	CREATE TABLE IF NOT EXISTS timepointes (
+		id INTEGER PRIMARY KEY,
+		task_id INTEGER NOT NULL,
+		start_time INTEGER,
+		end_time INTEGER,
+	    FOREIGN KEY (task_id)
+			REFERENCES task (id)	
+	)
+	`
+	_, err = db.Exec(scheme)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+
+	return db, nil
+
+}
 
 type Project struct {
 	Id   int64

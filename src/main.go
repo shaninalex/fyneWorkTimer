@@ -10,6 +10,7 @@ import (
 	"fyne.io/fyne/container"
 	"fyne.io/fyne/widget"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/shaninalex/fyneWorkTimer/src/models"
 )
 
 func main() {
@@ -60,7 +61,7 @@ func main() {
 
 	fmt.Println(version)
 
-	projects, err := getAllProjects(db)
+	projects, err := models.GetAllProjects(db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,10 +91,10 @@ func main() {
 
 	content := container.NewVBox(input, widget.NewButton("Save", func() {
 		log.Println("Content was:", input.Text)
-		project := Project{
+		project := models.Project{
 			Name: input.Text,
 		}
-		project.create(db)
+		project.Create(db)
 		input.Text = ""
 	}))
 

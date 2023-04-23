@@ -118,8 +118,19 @@ type Task struct {
 	TimeEstimate int64
 }
 
-func (p *Task) Create() {
-
+func (t *Task) Create(db *sql.DB) error {
+	res, err := db.Exec(`INSERT INTO tasks (name, project_id, time_estimate) VALUES (?, ?, ?)`, t.Name, t.Id, t.TimeEstimate)
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
+	t.Id = id
+	return nil
 }
 
 func (p *Task) Delete() {

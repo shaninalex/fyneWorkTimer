@@ -112,8 +112,26 @@ func (wt *WorkTimer) sidebarContent() (*widget.Select, *widget.Button) {
 	return selectWidget, buttonCreateProject
 }
 
-func (wt *WorkTimer) mainContent() (*widget.Label, *widget.Label) {
+func (wt *WorkTimer) mainContent() (*widget.Label, *widget.Label, *widget.Entry, *widget.Button) {
 	label := widget.NewLabel("Project tasks list")
 	project_name := widget.NewLabel(wt.selectedProject.Name)
-	return label, project_name
+	input := widget.NewEntry()
+	input.SetPlaceHolder("New Task Name")
+
+	createTaskBtn := widget.NewButton("create task", func() {
+		if len(input.Text) > 0 {
+			task := &Task{}
+			task.Id = wt.selectedProject.Id
+			task.Name = input.Text
+			task.TimeEstimate = 1231
+			task.Create(wt.DB)
+			// TODO: add new item in tasks list
+		} else {
+			log.Println("Unable to create task without name...")
+			// TODO: show error label and on start typing - hide error
+		}
+
+	})
+
+	return label, project_name, input, createTaskBtn
 }

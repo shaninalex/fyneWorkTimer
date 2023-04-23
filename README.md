@@ -5,7 +5,6 @@
 
 ### TODO
 
-[] - create config file (toml? yml?)
-[] - design layout
-[] - connect layout events with database
-
+- [ ] - create config file (toml? yml?)
+- [ ] - design layout
+- [ ] - connect layout events with database

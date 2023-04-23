@@ -3,43 +3,117 @@ package main
 import (
 	"database/sql"
 	"log"
+
+	"fyne.io/fyne"
+	"fyne.io/fyne/app"
+	"fyne.io/fyne/container"
+	"fyne.io/fyne/layout"
+	"fyne.io/fyne/widget"
 )
 
-type App struct {
-	DB *sql.DB
-	ui *Ui
+type WorkTimer struct {
+	DB              *sql.DB
+	Application     fyne.App
+	Window          fyne.Window
+	projects        []Project
+	selectedProject Project
 }
 
-func (app *App) Init(dbpath string) {
+func (wt *WorkTimer) Init(dbpath string) {
 	db, err := InitDatabase(dbpath)
 	if err != nil {
 		// panic(err)
 		log.Println(err)
 	}
-	app.DB = db
+	wt.DB = db
 	log.Println("db initialized")
 
-	app.ui = &Ui{}
-	app.ui.UIInit(200, 100)
+	size := fyne.NewSize(600, 400)
+	wt.Application = app.New()
+	wt.Window = wt.Application.NewWindow("hello")
+	wt.Window.Resize(size)
 	log.Println("ui initialized")
 }
 
-func (app *App) Run() {
+func (wt *WorkTimer) Run() {
 
 	log.Println("Application started")
 	// check amount of projects.
-	projects, err := GetAllProjects(app.DB)
+	projects, err := GetAllProjects(wt.DB)
 	if err != nil {
 		log.Fatal(nil)
 	}
 	if len(projects) == 0 {
 		// show timer
-		app.ui.UICreateProjectWindow(app.DB)
+		wt.UICreateProjectWindow()
 	} else {
 		// show create project window
-		app.ui.UICreateTimerWindow()
+		wt.UICreateTimerWindow()
 	}
 
-	app.ui.Run()
-	defer app.DB.Close()
+	wt.Window.ShowAndRun()
+	defer wt.DB.Close()
+}
+
+func (wt *WorkTimer) UICreateProjectWindow() {
+	input := widget.NewEntry()
+	input.SetPlaceHolder("Enter text...")
+
+	content := container.NewVBox(layout.NewSpacer(), input, widget.NewButton("Save", func() {
+		// TODO: move this func out of this into separate handlers
+		log.Println("Project Name:", input.Text)
+		// TODO: save to database and switch to Timer Window
+		project := &Project{}
+		project.Name = input.Text
+		project.Create(wt.DB)
+		input.Text = ""
+		wt.UICreateTimerWindow()
+	}), layout.NewSpacer())
+	wt.Window.SetContent(content)
+}
+
+func (wt *WorkTimer) UICreateTimerWindow() {
+	sidebar := container.NewVBox(wt.sidebarContent())
+	timerContent := container.NewVBox(wt.mainContent())
+	row := container.NewHBox(sidebar, timerContent)
+	wt.Window.SetContent(row)
+}
+
+func (wt *WorkTimer) sidebarContent() (*widget.Select, *widget.Button) {
+	projects, err := GetAllProjects(wt.DB)
+
+	wt.projects = projects
+	wt.selectedProject = projects[0]
+	if err != nil {
+		log.Println(err)
+	}
+
+	log.Println(projects)
+
+	options := []string{}
+
+	for _, element := range projects {
+		options = append(options, element.Name)
+	}
+
+	selectWidget := widget.NewSelect(options, nil)
+	selectWidget.Selected = options[0]
+	// selectedOption := widget.NewLabel("No option selected")
+
+	// Set the onSelect function for the select widget
+	selectWidget.OnChanged = func(selected string) {
+		// selectedOption.SetText("Selected option: " + selected)
+	}
+
+	buttonCreateProject := widget.NewButton("Create new project", func() {
+		wt.UICreateProjectWindow()
+	})
+
+	return selectWidget, buttonCreateProject
+}
+
+func (wt *WorkTimer) mainContent() (*widget.Label, *widget.Label) {
+	label := widget.NewLabel("Project tasks list")
+	project_name := widget.NewLabel(wt.selectedProject.Name)
+	return label, project_name
 }

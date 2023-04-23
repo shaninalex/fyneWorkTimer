@@ -5,7 +5,7 @@ import (
 )
 
 func main() {
-	var app = App{}
+	var app = WorkTimer{}
 	app.Init("timer.db")
 	app.Run()
 }

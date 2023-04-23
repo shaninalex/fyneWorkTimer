@@ -20,7 +20,7 @@ func (app *App) Init(dbpath string) {
 	log.Println("db initialized")
 
 	app.ui = &Ui{}
-	app.ui.UIInit(500, 300)
+	app.ui.UIInit(200, 100)
 	log.Println("ui initialized")
 }
 

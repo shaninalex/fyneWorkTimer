@@ -84,6 +84,10 @@ func (p *Project) Create(db *sql.DB) error {
 		return err
 	}
 	id, err := res.LastInsertId()
+	if err != nil {
+		log.Fatal(err)
+		return err
+	}
 	p.Id = id
 	return nil
 }

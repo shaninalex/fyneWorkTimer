@@ -141,6 +141,25 @@ func (p *Task) Update() {
 
 }
 
+func GetAllTasks(db *sql.DB, project_id int64) ([]Task, error) {
+	rows, err := db.Query(`SELECT * FROM tasks WHERE project_id = ?`, project_id)
+	if err != nil {
+		log.Fatal(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var tasks []Task
+	for rows.Next() {
+		var task Task
+		if err := rows.Scan(&task.Id, &task.Name, &task.ProjectId, &task.TimeEstimate); err != nil {
+			return nil, err
+		}
+		tasks = append(tasks, task)
+	}
+	return tasks, err
+}
+
 // this struct relates to the Task
 type TimePoint struct {
 	Id        int64
